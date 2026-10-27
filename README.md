@@ -55,6 +55,95 @@ bash scripts/dev.sh
 
 El script ejecuta Django, Vite, el worker Celery y un dispatcher outbox. Ctrl+C detiene esos cuatro procesos. Redis se detiene por separado con `docker compose stop redis`, si usaste Compose. Los cambios del backend requieren reiniciar el script; Vite actualiza el frontend automáticamente.
 
+### Preparar y ejecutar en Windows
+
+En Windows se recomienda usar **PowerShell**, Python 3.12 o posterior, Node.js 22 y Docker Desktop. Redis se ejecuta mediante Docker Desktop. Los scripts `scripts/setup.sh` y `scripts/dev.sh` son scripts de Bash; si usas Git Bash o WSL puedes ejecutar las instrucciones de Linux. En PowerShell, sigue estos pasos:
+
+1. Clona el repositorio y entra en la carpeta del proyecto:
+
+```powershell
+git clone https://github.com/TU_USUARIO/nexo-solidario.git
+Set-Location "nexo-solidario"
+```
+
+Si ya tienes el proyecto descargado, abre PowerShell en su carpeta raíz.
+
+2. Crea el entorno virtual e instala las dependencias del backend:
+
+```powershell
+py -3.12 -m venv .venv
+& .\.venv\Scripts\python.exe -m pip install -r backend\requirements.lock.txt
+```
+
+3. Instala las dependencias del frontend y crea la configuración local:
+
+```powershell
+Set-Location frontend
+npm ci
+Set-Location ..
+Copy-Item .env.example .env
+```
+
+Si `.env` ya existe, no lo reemplaces: puede contener configuración local o una clave privada.
+
+4. Ejecuta las migraciones de la base de datos:
+
+```powershell
+& .\.venv\Scripts\python.exe backend\manage.py migrate
+```
+
+Para cargar datos ficticios opcionales:
+
+```powershell
+& .\.venv\Scripts\python.exe backend\manage.py seed_demo
+```
+
+5. Abre Docker Desktop, espera a que esté iniciado y levanta Redis desde la raíz del proyecto:
+
+```powershell
+docker compose up -d redis
+```
+
+6. Abre cuatro ventanas de PowerShell, todas ubicadas en la raíz del proyecto, y ejecuta un proceso en cada una:
+
+**Ventana 1 — API Django**
+
+```powershell
+& .\.venv\Scripts\python.exe backend\manage.py runserver 127.0.0.1:8000
+```
+
+**Ventana 2 — Dispatcher de eventos**
+
+```powershell
+& .\.venv\Scripts\python.exe backend\manage.py dispatch_events --watch
+```
+
+**Ventana 3 — Worker Celery**
+
+```powershell
+Set-Location backend
+& ..\.venv\Scripts\celery.exe -A config worker -Q analisis --pool=solo --concurrency=1 --loglevel=INFO
+```
+
+**Ventana 4 — Frontend React/Vite**
+
+```powershell
+Set-Location frontend
+npm run dev
+```
+
+Cuando los cuatro procesos estén activos, abre:
+
+- Frontend: <http://127.0.0.1:5173>
+- API: <http://127.0.0.1:8000/api/v1/>
+- Swagger: <http://127.0.0.1:8000/swagger/>
+
+Para detener cada proceso, pulsa `Ctrl+C` en su ventana. Para detener Redis:
+
+```powershell
+docker compose stop redis
+```
+
 ### Ejecutar cada proceso por separado
 
 En terminales distintas, además de Redis:
