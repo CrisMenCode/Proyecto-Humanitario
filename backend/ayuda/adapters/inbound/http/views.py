@@ -1,14 +1,12 @@
 from django.conf import settings
-from django.http import HttpResponse
 from django.db.models import F
+from django.http import HttpResponse
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ayuda.application.use_cases import RequestAnalysis
-from ayuda.composition import resource_service
 from ayuda.adapters.outbound.persistence.models import (
     Campaign,
     CollectionPoint,
@@ -16,6 +14,9 @@ from ayuda.adapters.outbound.persistence.models import (
     Volunteer,
 )
 from ayuda.adapters.outbound.persistence.repositories import DjangoAnalysisRepository
+from ayuda.application.use_cases import RequestAnalysis
+from ayuda.composition import resource_service
+
 from .serializers import (
     AnalysisSerializer,
     CampaignSerializer,
@@ -143,13 +144,31 @@ class CampaignViewSet(CrudViewSet):
 @extend_schema_view(
     list=extend_schema(
         summary="Listar voluntarios",
+        description=(
+            "Devuelve los voluntarios con paginación, búsqueda y filtro por campaña."
+        ),
         responses=paginated(VolunteerSerializer),
     ),
-    retrieve=extend_schema(summary="Consultar voluntario"),
-    create=extend_schema(summary="Crear voluntario"),
-    update=extend_schema(summary="Actualizar voluntario"),
-    partial_update=extend_schema(summary="Editar voluntario"),
-    destroy=extend_schema(summary="Eliminar voluntario"),
+    retrieve=extend_schema(
+        summary="Consultar voluntario",
+        description="Devuelve la información de un voluntario por su identificador.",
+    ),
+    create=extend_schema(
+        summary="Crear voluntario",
+        description="Registra un nuevo voluntario asociado a una campaña.",
+    ),
+    update=extend_schema(
+        summary="Actualizar voluntario",
+        description="Reemplaza todos los datos de un voluntario existente.",
+    ),
+    partial_update=extend_schema(
+        summary="Editar voluntario",
+        description="Modifica uno o varios datos de un voluntario existente.",
+    ),
+    destroy=extend_schema(
+        summary="Eliminar voluntario",
+        description="Elimina un voluntario por su identificador.",
+    ),
 )
 class VolunteerViewSet(CrudViewSet):
     kind = "voluntarios"
@@ -160,7 +179,37 @@ class VolunteerViewSet(CrudViewSet):
 @extend_schema_view(
     list=extend_schema(
         summary="Listar puntos de acopio",
+        description=(
+            "Devuelve los puntos de acopio con paginación, búsqueda y filtro "
+            "por campaña."
+        ),
         responses=paginated(CollectionPointSerializer),
+    ),
+    retrieve=extend_schema(
+        summary="Consultar punto de acopio",
+        description="Devuelve la información de un punto de acopio por su identificador.",
+    ),
+    create=extend_schema(
+        summary="Crear punto de acopio",
+        description="Registra un nuevo punto de acopio asociado a una campaña.",
+    ),
+    update=extend_schema(
+        summary="Actualizar punto de acopio",
+        description=(
+            "Reemplaza todos los datos de un punto de acopio. La campaña no puede "
+            "cambiarse mientras el punto tenga insumos asociados."
+        ),
+    ),
+    partial_update=extend_schema(
+        summary="Editar punto de acopio",
+        description=(
+            "Modifica uno o varios datos de un punto de acopio. La campaña no puede "
+            "cambiarse mientras el punto tenga insumos asociados."
+        ),
+    ),
+    destroy=extend_schema(
+        summary="Eliminar punto de acopio",
+        description="Elimina un punto de acopio si no tiene insumos asociados.",
     ),
 )
 class CollectionPointViewSet(CrudViewSet):
@@ -172,7 +221,33 @@ class CollectionPointViewSet(CrudViewSet):
 @extend_schema_view(
     list=extend_schema(
         summary="Listar insumos",
+        description=(
+            "Devuelve los insumos con paginación, búsqueda y filtro por campaña."
+        ),
         responses=paginated(SupplySerializer),
+    ),
+    retrieve=extend_schema(
+        summary="Consultar insumo",
+        description="Devuelve la información de un insumo por su identificador.",
+    ),
+    create=extend_schema(
+        summary="Crear insumo",
+        description=(
+            "Registra un nuevo insumo requerido por una campaña y lo asocia a un "
+            "punto de acopio de la misma campaña."
+        ),
+    ),
+    update=extend_schema(
+        summary="Actualizar insumo",
+        description="Reemplaza todos los datos de un insumo existente.",
+    ),
+    partial_update=extend_schema(
+        summary="Editar insumo",
+        description="Modifica uno o varios datos de un insumo existente.",
+    ),
+    destroy=extend_schema(
+        summary="Eliminar insumo",
+        description="Elimina un insumo por su identificador.",
     ),
 )
 class SupplyViewSet(CrudViewSet):

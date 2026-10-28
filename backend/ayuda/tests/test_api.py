@@ -1,9 +1,12 @@
 from datetime import date, timedelta
 from io import StringIO
 from unittest.mock import patch
+
 from django.core.management import call_command
 from django.test import override_settings
 from rest_framework.test import APITestCase
+
+from ayuda.adapters.outbound.ai.analyzers import DemoAnalyzer
 from ayuda.adapters.outbound.persistence.models import (
     Analysis,
     Campaign,
@@ -12,7 +15,6 @@ from ayuda.adapters.outbound.persistence.models import (
     Supply,
 )
 from ayuda.adapters.outbound.persistence.repositories import DjangoAnalysisRepository
-from ayuda.adapters.outbound.ai.analyzers import DemoAnalyzer
 from ayuda.application.use_cases import ProcessAnalysis
 from ayuda.domain.rules import DomainError
 
@@ -287,3 +289,40 @@ class ApiTests(APITestCase):
             self.assertIn("post", paths[f"/api/v1/{resource}/"])
             self.assertIn("patch", paths[f"/api/v1/{resource}/{{id}}/"])
         self.assertIn("post", paths["/api/v1/campanas/{id}/analisis/"])
+
+    def test_schema_describes_supplies_and_collection_points(self):
+        result = self.client.get("/api/schema/?format=json")
+        self.assertEqual(result.status_code, 200)
+        paths = result.data["paths"]
+
+        expected_summaries = {
+            "get_collection": "Listar {resource}",
+            "post_collection": "Crear {singular}",
+            "get_detail": "Consultar {singular}",
+            "put_detail": "Actualizar {singular}",
+            "patch_detail": "Editar {singular}",
+            "delete_detail": "Eliminar {singular}",
+        }
+        for resource, (plural, singular) in {
+            "insumos": ("insumos", "insumo"),
+            "voluntarios": ("voluntarios", "voluntario"),
+            "puntos-acopio": ("puntos de acopio", "punto de acopio"),
+        }.items():
+            collection = paths[f"/api/v1/{resource}/"]
+            detail = paths[f"/api/v1/{resource}/{{id}}/"]
+            operations = {
+                "get_collection": collection["get"],
+                "post_collection": collection["post"],
+                "get_detail": detail["get"],
+                "put_detail": detail["put"],
+                "patch_detail": detail["patch"],
+                "delete_detail": detail["delete"],
+            }
+            for operation, schema in operations.items():
+                self.assertEqual(
+                    schema["summary"],
+                    expected_summaries[operation].format(
+                        resource=plural, singular=singular
+                    ),
+                )
+                self.assertTrue(schema["description"])
