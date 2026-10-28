@@ -73,7 +73,8 @@ export function useCampaignAnalysis(campaignId: number) {
         : false,
   });
   const start = useMutation({
-    mutationFn: () => api.analyze(campaignId),
+    mutationFn: (options?: { force?: boolean; provider?: string }) =>
+      api.analyze(campaignId, options),
     onSuccess: (analysis: Analysis) => {
       client.setQueryData(["latest-analysis", campaignId], analysis);
       client.setQueryData(["analysis", analysis.id], analysis);

@@ -50,6 +50,16 @@ export function ResourceForm({
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
+
+  useEffect(() => {
+    if (kind === "insumos" && points.data && points.data.length > 0) {
+      const currentPointId = String(values.punto_acopio || "");
+      const exists = points.data.some((p) => String(p.id) === currentPointId);
+      if (!currentPointId || !exists) {
+        setValues((prev) => ({ ...prev, punto_acopio: String(points.data[0].id) }));
+      }
+    }
+  }, [kind, points.data, values.punto_acopio]);
   const dependentError =
     (kind !== "campanas" ? campaigns.error : null) ||
     (kind === "insumos" ? points.error : null);
@@ -197,9 +207,34 @@ export function ResourceForm({
                 {field.relation === "puntos-acopio" &&
                   selectedCampaign > 0 &&
                   points.data?.length === 0 && (
-                    <small>
-                      Registra un punto de acopio para esta campaña.
-                    </small>
+                    <div
+                      style={{
+                        marginTop: "0.5rem",
+                        padding: "0.75rem",
+                        background: "#fffbeb",
+                        borderRadius: "0.5rem",
+                        border: "1px solid #fde68a",
+                        color: "#92400e",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      <p style={{ margin: "0 0 0.4rem 0", fontWeight: 600 }}>
+                        ⚠️ Esta campaña no tiene puntos de acopio registrados.
+                      </p>
+                      <p style={{ margin: "0 0 0.4rem 0" }}>
+                        Cada insumo requiere un punto de acopio asignado para saber dónde se recibe.
+                      </p>
+                      <a
+                        href={`/puntos-acopio?campana=${selectedCampaign}&crear=1`}
+                        style={{
+                          color: "#b45309",
+                          fontWeight: 600,
+                          textDecoration: "underline",
+                        }}
+                      >
+                        + Crear un punto de acopio para esta campaña
+                      </a>
+                    </div>
                   )}
               </div>
             );
@@ -223,7 +258,7 @@ export function ResourceForm({
               save.isPending ||
               Boolean(dependentError) ||
               (kind !== "campanas" && campaigns.isPending) ||
-              (kind === "insumos" && points.isFetching)
+              (kind === "insumos" && (points.isFetching || (points.data && points.data.length === 0)))
             }
           >
             {save.isPending && <LoaderCircle size={16} className="spin" />}

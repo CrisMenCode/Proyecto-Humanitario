@@ -1811,3 +1811,449 @@ textarea {
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   AI COPILOT & PROXY ARCHITECTURE STYLES (ENHANCED UX)
+   ========================================================================== */
+.analysis-panel {
+  position: relative;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #f3f7ec 0%, #ffffff 60%, #eef5e6 100%);
+  border: 1px solid #dce8ce;
+  box-shadow: 0 4px 20px -2px rgba(113, 132, 95, 0.08);
+}
+
+.ai-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.ai-provider-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.ai-provider-badge.gemini {
+  background: #e0e7ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+}
+
+.ai-provider-badge.openai {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.ai-provider-badge.demo {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.ai-provider-selector {
+  margin: 15px 0 10px 0;
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e2ebd8;
+}
+
+.ai-provider-selector label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #556b46;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.ai-provider-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ai-provider-pill {
+  flex: 1;
+  min-width: 80px;
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #d4e2c8;
+  background: #f8faf6;
+  color: #5b6e4e;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.ai-provider-pill:hover {
+  background: #eef5e6;
+  border-color: #82985e;
+}
+
+.ai-provider-pill.active {
+  background: #2d3725;
+  color: #ffffff;
+  border-color: #2d3725;
+  box-shadow: 0 2px 6px rgba(45, 55, 37, 0.2);
+}
+
+.arch-trigger-btn {
+  width: 100%;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #ffffff;
+  color: #3b502c;
+  border: 1px dashed #9cb57c;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arch-trigger-btn:hover {
+  background: #f2f7ec;
+  border-color: #637f48;
+}
+
+.analysis-summary-card {
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: #ffffff;
+  border-left: 4px solid #10b981;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.analysis-summary-card h4 {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #059669;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.analysis-summary-card p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.priority-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s ease;
+}
+
+.priority-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.priority-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.priority-card-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.priority-card-reason {
+  font-size: 11px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+}
+
+.priority-card-action {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 10.5px;
+  color: #166534;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.5;
+}
+
+.recs-box {
+  margin-top: 14px;
+}
+
+.rec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/* Modal Arquitectura */
+.ai-arch-modal {
+  max-width: 680px;
+  width: 95vw;
+}
+
+.ai-icon-small {
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+}
+
+.ai-arch-security-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.ai-steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ai-step-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.ai-step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.ai-step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.ai-step-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.ai-step-tag {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.ai-step-desc {
+  margin: 0;
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.55;
+  padding-left: 34px;
+}
+
+.ai-step-arrow {
+  display: flex;
+  justify-content: center;
+  color: #94a3b8;
+  margin-top: 6px;
+}
+
+.ai-live-telemetry {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.ai-live-telemetry h4 {
+  margin: 0 0 10px 0;
+  font-size: 11.5px;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  font-size: 11px;
+}
+
+.t-label {
+  display: block;
+  font-size: 9.5px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.t-val {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.t-badge {
+  background: #e2e8f0;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Quick Donation Button */
+.quick-donate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-donate-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+/* Map Link */
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  color: #0284c7;
+  text-decoration: underline;
+  margin-top: 3px;
+}
+
+.map-link:hover {
+  color: #0369a1;
+}
+
+/* Print Styles */
+.print-header {
+  display: none;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  .sidebar,
+  .topbar,
+  .back-link,
+  .print-hide,
+  .modal,
+  .button,
+  .arch-trigger-btn,
+  .ai-provider-selector,
+  .table-actions,
+  .related-links {
+    display: none !important;
+  }
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .detail-grid {
+    display: block !important;
+  }
+  .panel {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    margin-bottom: 20px !important;
+    page-break-inside: avoid;
+  }
+  .print-header {
+    display: block !important;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #2d3725;
+  }
+  .print-header h2 {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    color: #15803d;
+  }
+  .print-header p {
+    font-size: 11px;
+    color: #64748b;
+    margin: 0;
+  }
+}

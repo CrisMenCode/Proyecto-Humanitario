@@ -89,8 +89,14 @@ export const api = {
     request<void>(`/${kind}/${id}/`, { method: "DELETE" }),
   dashboard: (signal?: AbortSignal) =>
     request<Dashboard>("/dashboard/", { signal }),
-  analyze: (id: number) =>
-    request<Analysis>(`/campanas/${id}/analisis/`, { method: "POST" }),
+  analyze: (id: number, options?: { force?: boolean; provider?: string }) => {
+    const params = new URLSearchParams({ sync: "true" });
+    if (options?.force) params.set("force", "true");
+    if (options?.provider) params.set("proveedor", options.provider);
+    return request<Analysis>(`/campanas/${id}/analisis/?${params}`, {
+      method: "POST",
+    });
+  },
   latestAnalysis: (id: number, signal?: AbortSignal) =>
     request<Analysis | null>(`/campanas/${id}/ultimo-analisis/`, { signal }),
   analysis: (id: string, signal?: AbortSignal) =>

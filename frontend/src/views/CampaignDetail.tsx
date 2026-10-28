@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router";
 import {
   ArrowLeft,
@@ -10,7 +11,15 @@ import {
   Plus,
   Sparkles,
   Users,
+  Zap,
+  Layers,
+  AlertTriangle,
+  Printer,
+  HeartHandshake,
 } from "lucide-react";
+import { QuickDonationModal } from "../components/QuickDonationModal";
+import type { Resource } from "../types";
+import { AiArchitectureModal } from "../components/AiArchitectureModal";
 import {
   useAllResources,
   useCampaignAnalysis,
@@ -39,6 +48,9 @@ function CampaignContent({ id }: { id: number }) {
   const campaign = useResource("campanas", id);
   const supplies = useAllResources("insumos", { campana: id });
   const { analysis, loading, error, start } = useCampaignAnalysis(id);
+  const [showArchModal, setShowArchModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
+  const [donatingSupply, setDonatingSupply] = useState<Resource | null>(null);
   const busy =
     analysis && ["pendiente", "procesando"].includes(analysis.estado);
   if (campaign.isPending) return <Loading />;
@@ -52,7 +64,11 @@ function CampaignContent({ id }: { id: number }) {
   const data = campaign.data!;
   return (
     <>
-      <Link className="back-link" to="/campanas">
+      <div className="print-header">
+        <h2>NEXO SOLIDARIO · REPORTE EJECUTIVO DE CAMPAÑA</h2>
+        <p>Centro de Coordinación Humanitaria · Generado con Asistencia de IA</p>
+      </div>
+      <Link className="back-link print-hide" to="/campanas">
         <ArrowLeft size={16} />
         Todas las campañas
       </Link>
@@ -64,7 +80,18 @@ function CampaignContent({ id }: { id: number }) {
           <h1>{data.nombre}</h1>
           <p>{data.descripcion}</p>
         </div>
-        <Badge value={data.estado} />
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }} className="print-hide">
+          <Badge value={data.estado} />
+          <button
+            type="button"
+            className="button secondary small"
+            onClick={() => window.print()}
+            title="Exportar reporte en PDF o imprimir"
+          >
+            <Printer size={15} />
+            Exportar PDF / Imprimir
+          </button>
+        </div>
       </div>
       <div className="detail-meta">
         <span>
@@ -126,11 +153,24 @@ function CampaignContent({ id }: { id: number }) {
                         {item.cantidad_recibida} de {item.cantidad_requerida}{" "}
                         {item.unidad}
                       </span>
-                      <strong>
-                        {item.faltante
-                          ? `Faltan ${item.faltante}`
-                          : "Meta cubierta"}
-                      </strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <strong>
+                          {item.faltante
+                            ? `Faltan ${item.faltante}`
+                            : "Meta cubierta"}
+                        </strong>
+                        {Number(item.faltante) > 0 && (
+                          <button
+                            type="button"
+                            className="quick-donate-btn print-hide"
+                            onClick={() => setDonatingSupply(item)}
+                            title="Registrar aporte rápido"
+                          >
+                            <HeartHandshake size={13} />
+                            + Aporte
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -142,81 +182,158 @@ function CampaignContent({ id }: { id: number }) {
         </section>
         <section className="panel analysis-panel">
           <div className="analysis-top">
-            <span className="ai-icon">
-              <Sparkles size={23} />
+            <span className="ai-brand-badge">
+              <Sparkles size={14} />
+              NEXO AI COPILOT
             </span>
-            <span className="badge neutral">
-              {analysis?.proveedor === "demo"
-                ? "SIMULACIÓN"
+            <span
+              className={`ai-provider-badge ${
+                analysis?.proveedor === "gemini"
+                  ? "gemini"
+                  : analysis?.proveedor === "openai"
+                    ? "openai"
+                    : "demo"
+              }`}
+            >
+              {analysis?.proveedor === "gemini"
+                ? "GOOGLE GEMINI 2.0"
                 : analysis?.proveedor === "openai"
-                  ? "OPENAI"
-                  : "ASISTENTE"}
+                  ? "OPENAI GPT-4O"
+                  : analysis?.proveedor === "deepseek"
+                    ? "DEEPSEEK"
+                    : analysis?.proveedor === "groq"
+                      ? "GROQ LLAMA 3"
+                      : "MODO SIMULACIÓN"}
             </span>
           </div>
+
           <h2>
-            Una perspectiva para
+            Diagnóstico inteligente
             <br />
-            el próximo paso.
+            para la toma de decisiones.
           </h2>
+
           <p className="muted">
-            Prioridades explicadas y un resumen de tu campaña, basados en la
-            información registrada.
+            Priorización automática de insumos, cálculo de brechas humanitarias
+            y plan táctico generado por IA vía Proxy Server-to-Server.
           </p>
+
+          <button
+            type="button"
+            className="arch-trigger-btn"
+            onClick={() => setShowArchModal(true)}
+          >
+            <Layers size={14} />
+            <span>📐 Ver Arquitectura del Proxy de IA (5 Pasos)</span>
+          </button>
+
+          <div className="ai-provider-selector">
+            <label>Motor de IA para la prueba en vivo:</label>
+            <div className="ai-provider-pills">
+              <button
+                type="button"
+                className={`ai-provider-pill ${selectedProvider === "gemini" ? "active" : ""}`}
+                onClick={() => setSelectedProvider("gemini")}
+              >
+                ✨ Gemini 2.0
+              </button>
+              <button
+                type="button"
+                className={`ai-provider-pill ${selectedProvider === "openai" ? "active" : ""}`}
+                onClick={() => setSelectedProvider("openai")}
+              >
+                🤖 OpenAI
+              </button>
+              <button
+                type="button"
+                className={`ai-provider-pill ${selectedProvider === "demo" ? "active" : ""}`}
+                onClick={() => setSelectedProvider("demo")}
+              >
+                🧪 Modo Demo
+              </button>
+            </div>
+          </div>
+
           {analysis?.desactualizado && (
             <div className="warning-box">
-              Los datos cambiaron desde este análisis. Genera uno nuevo para
-              actualizar las recomendaciones.
+              ⚠️ Se registraron nuevos datos desde el último reporte. Vuelve a
+              analizar para actualizar las prioridades.
             </div>
           )}
+
           {loading ? (
-            <Loading label="Consultando análisis…" />
+            <Loading label="Consultando telemetría de IA…" />
           ) : busy ? (
             <div className="analysis-progress" role="status">
-              <LoaderCircle size={22} className="spin" />
-              <strong>
-                {analysis?.estado === "pendiente"
-                  ? "Análisis en espera"
-                  : "Analizando la campaña"}
-              </strong>
+              <LoaderCircle size={24} className="spin" />
+              <strong>Procesando con {selectedProvider.toUpperCase()}...</strong>
               <p>
-                Puedes seguir trabajando. El resultado aparecerá aquí cuando
-                esté listo.
+                El servidor está enviando el snapshot al proxy y validando el
+                esquema de respuesta.
               </p>
             </div>
           ) : analysis?.estado === "fallido" ? (
             <ErrorState error={new Error(analysis.error)} />
           ) : analysis?.resultado ? (
             <div className="analysis-result">
-              <p className="analysis-summary">{analysis.resultado.resumen}</p>
+              <div className="analysis-summary-card">
+                <h4>
+                  <Sparkles size={14} />
+                  Resumen Ejecutivo
+                </h4>
+                <p>{analysis.resultado.resumen}</p>
+              </div>
+
               {analysis.resultado.prioridades.length ? (
-                <ol className="priorities">
+                <div>
+                  <h4 style={{ fontSize: "11px", textTransform: "uppercase", color: "#4b5563", margin: "14px 0 8px 0" }}>
+                    🎯 Necesidades Prioritarias Calculadas:
+                  </h4>
                   {analysis.resultado.prioridades.map((priority, index) => (
-                    <li key={priority.insumo_id}>
-                      <span className="priority-number">{index + 1}</span>
-                      <div>
+                    <div className="priority-card" key={priority.insumo_id}>
+                      <div className="priority-card-top">
+                        <span className="priority-card-num">Prioridad #{index + 1}</span>
                         <Badge value={priority.nivel} />
-                        <p>{priority.motivo}</p>
-                        <small>{priority.accion}</small>
                       </div>
-                    </li>
+                      <p className="priority-card-reason">{priority.motivo}</p>
+                      <div className="priority-card-action">
+                        <Zap size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+                        <span><strong>Acción táctica:</strong> {priority.accion}</span>
+                      </div>
+                    </div>
                   ))}
-                </ol>
+                </div>
               ) : (
                 <p className="covered">
                   <CheckCircle2 size={17} />
                   Todas las metas registradas están cubiertas.
                 </p>
               )}
-              {analysis.resultado.recomendaciones.map((text, index) => (
-                <p className="recommendation" key={index}>
-                  {text}
-                </p>
-              ))}
-              {analysis.resultado.datos_faltantes.map((text, index) => (
-                <p className="warning-box" key={index}>
-                  {text}
-                </p>
-              ))}
+
+              {analysis.resultado.recomendaciones.length > 0 && (
+                <div className="recs-box">
+                  <h4 style={{ fontSize: "11px", textTransform: "uppercase", color: "#4b5563", margin: "14px 0 8px 0" }}>
+                    💡 Recomendaciones Estratégicas:
+                  </h4>
+                  {analysis.resultado.recomendaciones.map((text, index) => (
+                    <div className="rec-item" key={index}>
+                      <CheckCircle2 size={14} color="#059669" style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {analysis.resultado.datos_faltantes.length > 0 && (
+                <div style={{ marginTop: "12px" }}>
+                  {analysis.resultado.datos_faltantes.map((text, index) => (
+                    <div className="warning-box" key={index} style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                      <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: "2px" }} />
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             <div className="analysis-empty">
@@ -224,47 +341,57 @@ function CampaignContent({ id }: { id: number }) {
               <p>Convierte los datos de esta campaña en un plan de acción.</p>
             </div>
           )}
+
           {error && <ErrorState error={error} />}
+
           <button
             className="button primary full-width"
-            onClick={() => start.mutate()}
-            disabled={
-              start.isPending ||
-              Boolean(busy) ||
-              loading ||
-              Boolean(
-                analysis?.estado === "completado" && !analysis.desactualizado,
-              )
+            onClick={() =>
+              start.mutate({ force: true, provider: selectedProvider })
             }
+            disabled={start.isPending || Boolean(busy) || loading}
           >
             {start.isPending || busy ? (
               <LoaderCircle size={17} className="spin" />
             ) : (
-              <Sparkles size={17} />
+              <Zap size={17} />
             )}
-            {busy
-              ? "Análisis en curso"
-              : analysis?.estado === "completado" && !analysis.desactualizado
-                ? "Análisis actualizado"
-                : analysis?.estado === "fallido"
-                  ? "Reintentar análisis"
-                  : "Analizar campaña"}
+            {start.isPending || busy
+              ? "Consultando IA en tiempo real..."
+              : analysis?.resultado
+                ? `⚡ Re-analizar con ${selectedProvider.toUpperCase()}`
+                : `⚡ Iniciar Análisis con ${selectedProvider.toUpperCase()}`}
           </button>
+
           {analysis && (
             <span className="analysis-date">
               <Clock3 size={13} />
-              Solicitado{" "}
+              Última ejecución:{" "}
               {new Date(analysis.creado_en).toLocaleString("es-CO", {
                 timeZone: "America/Bogota",
               })}
             </span>
           )}
+
           <p className="ai-note">
-            {analysis?.proveedor === "demo"
-              ? "Modo de demostración: reglas locales, sin llamadas a IA. "
-              : ""}
-            Revisa las sugerencias antes de coordinar acciones.
+            Proxy Server-to-Server validado. Toda comunicación externa está
+            encriptada y protegida en el backend.
           </p>
+
+          {showArchModal && (
+            <AiArchitectureModal
+              analysis={analysis}
+              close={() => setShowArchModal(false)}
+            />
+          )}
+
+          {donatingSupply && (
+            <QuickDonationModal
+              supply={donatingSupply}
+              close={() => setDonatingSupply(null)}
+              saved={() => supplies.refetch()}
+            />
+          )}
         </section>
       </div>
       <div className="related-links">

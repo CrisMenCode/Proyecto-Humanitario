@@ -9,6 +9,7 @@ import {
   Search,
   Trash2,
   X,
+  MapPin,
 } from "lucide-react";
 import {
   useAllResources,
@@ -325,7 +326,22 @@ export default function ResourcePage({ kind }: { kind: ResourceKey }) {
                     </>
                   ) : (
                     <>
-                      <td>{record.direccion}</td>
+                      <td>
+                        <div>{record.direccion}</div>
+                        {record.direccion && (
+                          <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                              `${record.direccion}, Popayán, Colombia`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="map-link print-hide"
+                            title="Ver en Google Maps"
+                          >
+                            <MapPin size={11} /> Ver en Maps
+                          </a>
+                        )}
+                      </td>
                       <td>{record.horario}</td>
                       <td>
                         <Badge value={record.activo} />
