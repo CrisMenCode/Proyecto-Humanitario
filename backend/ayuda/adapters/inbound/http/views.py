@@ -80,34 +80,58 @@ class CrudViewSet(viewsets.GenericViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@extend_schema_view(list=extend_schema(responses=paginated(CampaignSerializer)))
+@extend_schema(tags=["Campañas"])
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar campañas",
+        description="Devuelve las campañas con paginación, búsqueda y filtros.",
+        responses=paginated(CampaignSerializer),
+    ),
+    retrieve=extend_schema(summary="Consultar campaña"),
+    create=extend_schema(summary="Crear campaña"),
+    update=extend_schema(summary="Actualizar campaña completa"),
+    partial_update=extend_schema(summary="Actualizar parcialmente una campaña"),
+    destroy=extend_schema(summary="Eliminar campaña"),
+)
 class CampaignViewSet(CrudViewSet):
     kind = "campanas"
     serializer_class = CampaignSerializer
 
     @extend_schema(
+        summary="Solicitar análisis de campaña",
+        description=(
+            "Crea una solicitud de análisis y devuelve el resultado "
+            "pendiente o completado."
+        ),
         request=None,
         responses={
             200: AnalysisSerializer,
             202: AnalysisSerializer,
             404: ErrorSerializer,
         },
-        description="Persiste análisis y evento outbox sin llamar al proveedor ni al broker. Devuelve 200 si reutiliza un análisis completado de la misma revisión.",
     )
     @action(detail=True, methods=["post"], url_path="analisis")
     def request_analysis(self, request, pk=None):
-        data, created = RequestAnalysis(DjangoAnalysisRepository()).execute(pk)
-        code = 202 if created or data["estado"] in {"pendiente", "procesando"} else 200
+        data, created = RequestAnalysis(
+            DjangoAnalysisRepository()
+        ).execute(pk)
+        code = (
+            202
+            if created or data["estado"] in {"pendiente", "procesando"}
+            else 200
+        )
         return Response(AnalysisSerializer(data).data, status=code)
 
     @extend_schema(
+        summary="Consultar último análisis",
+        description="Devuelve el último análisis de una campaña o null.",
         responses=AnalysisSerializer(allow_null=True),
-        description="Último análisis o null si la campaña no tiene solicitudes.",
     )
     @action(detail=True, methods=["get"], url_path="ultimo-analisis")
     def latest_analysis(self, request, pk=None):
         self.service.get(pk)
         data = DjangoAnalysisRepository().latest(pk)
+
         return (
             Response(AnalysisSerializer(data).data)
             if data
@@ -115,47 +139,85 @@ class CampaignViewSet(CrudViewSet):
         )
 
 
-@extend_schema_view(list=extend_schema(responses=paginated(VolunteerSerializer)))
+@extend_schema(tags=["Voluntarios"])
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar voluntarios",
+        responses=paginated(VolunteerSerializer),
+    ),
+    retrieve=extend_schema(summary="Consultar voluntario"),
+    create=extend_schema(summary="Crear voluntario"),
+    update=extend_schema(summary="Actualizar voluntario"),
+    partial_update=extend_schema(summary="Editar voluntario"),
+    destroy=extend_schema(summary="Eliminar voluntario"),
+)
 class VolunteerViewSet(CrudViewSet):
     kind = "voluntarios"
     serializer_class = VolunteerSerializer
 
 
-@extend_schema_view(list=extend_schema(responses=paginated(CollectionPointSerializer)))
+@extend_schema(tags=["Puntos de acopio"])
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar puntos de acopio",
+        responses=paginated(CollectionPointSerializer),
+    ),
+)
 class CollectionPointViewSet(CrudViewSet):
     kind = "puntos-acopio"
     serializer_class = CollectionPointSerializer
 
 
-@extend_schema_view(list=extend_schema(responses=paginated(SupplySerializer)))
+@extend_schema(tags=["Insumos"])
+@extend_schema_view(
+    list=extend_schema(
+        summary="Listar insumos",
+        responses=paginated(SupplySerializer),
+    ),
+)
 class SupplyViewSet(CrudViewSet):
     kind = "insumos"
     serializer_class = SupplySerializer
 
 
+@extend_schema(tags=["Análisis"])
 class AnalysisViewSet(viewsets.GenericViewSet):
     serializer_class = AnalysisSerializer
     lookup_value_converter = "uuid"
 
+    @extend_schema(summary="Consultar análisis")
     def retrieve(self, request, pk=None):
-        return Response(AnalysisSerializer(DjangoAnalysisRepository().get(pk)).data)
+        return Response(
+            AnalysisSerializer(
+                DjangoAnalysisRepository().get(pk)
+            ).data
+        )
 
 
 class DashboardView(APIView):
-    @extend_schema(responses=DashboardSerializer)
+    @extend_schema(
+        tags=["Dashboard"],
+        summary="Consultar indicadores generales",
+        description="Devuelve los indicadores actuales de las campañas.",
+        responses=DashboardSerializer,
+    )
     def get(self, request):
         return Response(
             {
-                "campanas_activas": Campaign.objects.filter(estado="activa").count(),
+                "campanas_activas": Campaign.objects.filter(
+                    estado="activa"
+                ).count(),
                 "voluntarios_activos": Volunteer.objects.filter(
-                    activo=True, campana__estado="activa"
+                    activo=True,
+                    campana__estado="activa",
                 ).count(),
                 "necesidades_pendientes": Supply.objects.filter(
                     campana__estado="activa",
                     cantidad_recibida__lt=F("cantidad_requerida"),
                 ).count(),
                 "puntos_activos": CollectionPoint.objects.filter(
-                    activo=True, campana__estado="activa"
+                    activo=True,
+                    campana__estado="activa",
                 ).count(),
                 "proveedor_ia": settings.AI_PROVIDER,
             }

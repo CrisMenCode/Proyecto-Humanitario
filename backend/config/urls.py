@@ -11,6 +11,9 @@ from ayuda.adapters.inbound.http.views import (
 )
 
 router = DefaultRouter(use_regex_path=False)
+router.include_format_suffixes = False
+
+
 for prefix, viewset in [
     ("campanas", CampaignViewSet),
     ("voluntarios", VolunteerViewSet),
